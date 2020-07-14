@@ -1,0 +1,1 @@
+FROM tbickford/simple-web-app-prometheus@sha256:d11e96a7b5cb90d1d60abc10f073411d9fdbf5073e58041b4f2e1055d16e16b7

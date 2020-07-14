@@ -1,0 +1,1 @@
+FROM jeffhollan/rabbitmq-client@sha256:c5cd232389260e9841ced013676ad7f40ee76cd73a14cb6a46b90c59a5a2f3cd

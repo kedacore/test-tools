@@ -1,0 +1,14 @@
+name: pull request validation
+on: [pull_request]
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: Build
+        run: make build-e2e-images

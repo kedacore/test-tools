@@ -1,0 +1,1 @@
+FROM balchu/artemis-producer@sha256:6a4b95188bccd7b0ae387950cb28ef7ad60f085b871298161afcdece0d634b35
