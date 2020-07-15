@@ -1,0 +1,1 @@
+FROM balchu/kedartemis-consumer@sha256:c219ffcdc0a464ccecb0d7d9d900beace2e739b6510227492c0250715af2af8d
