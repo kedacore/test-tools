@@ -1,1 +1,12 @@
-FROM tbickford/simple-web-app-prometheus@sha256:d11e96a7b5cb90d1d60abc10f073411d9fdbf5073e58041b4f2e1055d16e16b7
+FROM golang:1.12 as build-env
+
+WORKDIR /go/src/app
+ADD . /go/src/app
+
+RUN go get -d -v ./...
+
+RUN go build -o /go/bin/app
+
+FROM gcr.io/distroless/base
+COPY --from=build-env /go/bin/app /
+CMD ["/app"]
