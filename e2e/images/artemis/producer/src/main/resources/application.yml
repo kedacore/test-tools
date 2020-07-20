@@ -1,0 +1,7 @@
+spring:
+  artemis:
+    mode: native
+    host: ${ARTEMIS_SERVER_HOST:10.152.183.227}
+    port: ${ARTEMIS_SERVER_PORT:61616}
+    user: ${ARTEMIS_USERNAME:artemis}
+    password: ${ARTEMIS_PASSWORD:artemis}
