@@ -17,7 +17,7 @@ jobs:
         env:
           GHCR_AUTH_PAT: ${{ secrets.GHCR_AUTH_PAT }}
           GHCR_AUTH_USER: ${{ secrets.GHCR_AUTH_USER }}
-        run: echo $GHCR_AUTH_PAT | docker login -u $GHCR_AUTH_USER --password-stdin
+        run: echo $GHCR_AUTH_PAT | docker login ghcr.io -u $GHCR_AUTH_USER --password-stdin
 
       - name: Login to Docker Hub
         env:
