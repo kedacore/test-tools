@@ -1,0 +1,10 @@
+# Pipeline to use during our end-to-end tests for our Azure Pipelines scaler
+
+trigger:
+- main
+
+pool: end-to-end-tests
+
+steps:
+- script: sleep 2m
+  displayName: Delay pipeline
