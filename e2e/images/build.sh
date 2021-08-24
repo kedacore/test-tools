@@ -14,16 +14,17 @@ if [ "$1" == "--push" ]
 then
     for IMAGE_NAME in $(find * -name Dockerfile -exec dirname {} \; | tr '/' '-')
     do
-        docker push ghcr.io/kedacore/tests-$IMAGE_NAME:$IMAGE_TAG
-        docker push docker.io/kedacore/tests-$IMAGE_NAME:$IMAGE_TAG
+        docker push ghcr.io/kedacore/tests-$IMAGE_NAME:$IMAGE_TAG --all-tags
+        docker push docker.io/kedacore/tests-$IMAGE_NAME:$IMAGE_TAG --all-tags
     done
 else
     for IMAGE in $(find * -name Dockerfile)
     do
         IMAGE_NAME=$(dirname $IMAGE | tr '/' '-')
         pushd $(dirname $IMAGE)
-        docker build -t docker.io/kedacore/tests-$IMAGE_NAME:$IMAGE_TAG .
+        docker build -t docker.io/kedacore/tests-$IMAGE_NAME:$IMAGE_TAG -t docker.io/kedacore/tests-$IMAGE_NAME:latest .
         docker tag docker.io/kedacore/tests-$IMAGE_NAME:$IMAGE_TAG ghcr.io/kedacore/tests-$IMAGE_NAME:$IMAGE_TAG
+        docker tag docker.io/kedacore/tests-$IMAGE_NAME:$IMAGE_TAG ghcr.io/kedacore/tests-$IMAGE_NAME:latest
         popd
     done
 fi
