@@ -14,7 +14,7 @@ if [ "$1" == "--push" ]
 then
     for IMAGE_NAME in $(find * -name Dockerfile -exec dirname {} \; | tr '/' '-')
     do
-        docker image push -a ghcr.io/kedacore/tests-$IMAGE_NAME:
+        docker image push -a ghcr.io/kedacore/tests-$IMAGE_NAME
         docker image push -a docker.io/kedacore/tests-$IMAGE_NAME
     done
 else
