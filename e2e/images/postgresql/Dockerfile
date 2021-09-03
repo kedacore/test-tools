@@ -2,7 +2,7 @@ FROM golang:1.17 as build-env
 
 WORKDIR /go/src/app
 ADD cmd/ /go/src/app
-ADD go.* /go/src/app
+ADD go.* /go/src/app/
 
 RUN go get -d -v ./...
 
