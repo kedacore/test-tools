@@ -67,13 +67,13 @@ func updateTaskInstances(numberOfTaskInstancesToUpdate int) {
 	defer db.Close()
 	for i := 0; i < numberOfTaskInstancesToUpdate; i++ {
 		ctx := context.Background()
-		tx, err := db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
+		tx, err := db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadCommitted})
 		if err != nil {
 			log.Fatalf("Error creating transaction %v", err)
 		}
 
 		var taskInstance taskInstance
-		err = tx.QueryRowContext(ctx, "SELECT id, state FROM task_instance WHERE state = $1 LIMIT 1", queued).Scan(&taskInstance.id, &taskInstance.state)
+		err = tx.QueryRowContext(ctx, "SELECT id, state FROM task_instance WHERE state = $1 LIMIT 1 FOR UPDATE", queued).Scan(&taskInstance.id, &taskInstance.state)
 		if err != nil {
 			tx.Rollback()
 			log.Fatal(err)
