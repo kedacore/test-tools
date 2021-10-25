@@ -1,0 +1,10 @@
+FROM golang
+
+WORKDIR /cmd/lists
+
+COPY ./cmd/lists .
+COPY go.mod go.sum ./
+
+RUN go build -o main .
+
+CMD [ "./main" ]

@@ -1,0 +1,10 @@
+FROM golang
+
+WORKDIR /cmd/streams
+
+COPY ./cmd/streams .
+COPY go.mod go.sum ./
+
+RUN go build -o main .
+
+CMD [ "./main" ]
