@@ -1,8 +1,8 @@
 FROM golang
 
-WORKDIR /cmd/lists
+WORKDIR /cmd
 
-COPY ./cmd/lists .
+COPY ./cmd .
 COPY go.mod go.sum ./
 
 RUN go build -o main .
