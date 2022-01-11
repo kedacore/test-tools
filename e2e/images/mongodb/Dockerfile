@@ -1,12 +1,16 @@
-FROM golang:1.14 as build-env
+FROM golang:1.17 as build-env
 
-WORKDIR /go/src/app
-ADD cmd/ /go/src/app
+WORKDIR /workspace
+COPY go.mod go.mod
+COPY go.sum go.sum
+RUN go mod download
 
-RUN go get -d -v ./...
+ADD cmd cmd
 
-RUN go build -o /go/bin/app
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /go/bin/app cmd/main.go
 
-FROM alpine:3.11.6
+FROM gcr.io/distroless/static:nonroot
 COPY --from=build-env /go/bin/app /
+USER nonroot:nonroot
+
 ENTRYPOINT ["/app"]
