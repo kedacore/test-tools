@@ -1,7 +1,7 @@
 # Pipeline to use during our end-to-end tests for our Azure Pipelines scaler
 
-trigger:
-- main
+pr: none
+trigger: none
 
 pool: end-to-end-tests
 
