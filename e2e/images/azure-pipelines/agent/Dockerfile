@@ -20,7 +20,11 @@ RUN apt-get update \
 
 WORKDIR /azp
 
+RUN mkdir ./patches
+COPY ./patches/AgentService.js ./patches/
 COPY ./start.sh .
+COPY ./start-once.sh .
 RUN chmod +x start.sh
+RUN chmod +x start-once.sh
 
-CMD ["./start.sh"]
+CMD ["./start-once.sh"]
