@@ -45,3 +45,6 @@ __pycache__/
 # Intellij files
 .idea
 *.iml
+
+# Visual Studio Code
+.vscode
