@@ -1,12 +1,17 @@
-FROM golang:1.18 as build-env
+FROM golang:1.19 as builder
 
-WORKDIR /go/src/app
-ADD . /go/src/app
+WORKDIR /workspace
 
-RUN go get -d -v ./...
+COPY go.mod go.mod
+COPY go.sum go.sum
+COPY main.go main.go
 
-RUN go build -o /go/bin/app
+RUN go build -o prometheusapp main.go
 
-FROM gcr.io/distroless/base
-COPY --from=build-env /go/bin/app /
-CMD ["/app"]
+FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
+WORKDIR /
+COPY --from=builder /workspace/prometheusapp .
+# 65532 is numeric for nonroot
+USER 65532:65532
+
+ENTRYPOINT ["/prometheusapp"]
