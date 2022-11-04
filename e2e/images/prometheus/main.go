@@ -1,3 +1,4 @@
+
 package main
 
 import (
@@ -9,26 +10,28 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-var httpRequests = prometheus.NewCounter(
+var httpRequestsTotal = prometheus.NewCounter(
 	prometheus.CounterOpts{
 		Name: "http_requests_total",
-		Help: "Number of http requests.",
+		Help: "Total number of http requests.",
 	},
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	httpRequests.Inc()
-	fmt.Fprint(w, "Hello")
-}
-
-func init() {
-	prometheus.MustRegister(httpRequests)
+	httpRequestsTotal.Inc()
+	msg := "Received a request"
+	fmt.Fprint(w, msg)
+	fmt.Println(msg)
 }
 
 func main() {
 	port := "8080"
+
+	prometheus.MustRegister(httpRequestsTotal)
+
 	http.HandleFunc("/", handler)
 	http.Handle("/metrics", promhttp.Handler())
-	log.Printf("Server started, listening on port %v", port)
+
+	log.Printf("Server started on port %v", port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", port), nil))
 }
