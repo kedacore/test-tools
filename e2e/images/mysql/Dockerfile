@@ -1,10 +1,10 @@
-FROM golang:1.13 as build-env
+FROM golang:1.18 as build-env
 
 WORKDIR /go/src/app
-ADD cmd/ /go/src/app
+COPY go.mod .
+COPY cmd/ /go/src/app
 
-RUN go get -d -v ./...
-
+RUN go mod tidy
 RUN go build -o /go/bin/app
 
 FROM gcr.io/distroless/base
