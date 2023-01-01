@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	redis "github.com/go-redis/redis/v8"
+	redis "github.com/go-redis/redis/v9"
 )
 
 func splitAndTrim(s, sep, toTrim string) []string {
