@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	PORT = 8080
+	PORT     = 8080
+	TLS_PORT = 4333
 )
 
 var value int
@@ -107,4 +108,9 @@ func main() {
 
 	http.Handle("/", r)
 	http.ListenAndServe(fmt.Sprintf(":%d", PORT), nil)
+
+	value, found := os.LookupEnv("USE_TLS")
+	if found && value == "true" {
+		http.ListenAndServeTLS(fmt.Sprintf(":%d", TLS_PORT), "/cert/tls.crt", "/cert/tls.key", nil)
+	}
 }
