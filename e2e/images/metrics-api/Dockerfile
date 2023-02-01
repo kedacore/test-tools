@@ -11,5 +11,6 @@ RUN go build -o /go/bin/server .
 FROM gcr.io/distroless/base
 COPY --from=build-env /go/bin/server /
 EXPOSE 8080
+EXPOSE 4333
 
-CMD ["/server"]
+ENTRYPOINT ["/server"]
