@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	PORT = 8080
+	PORT     = 8080
+	TLS_PORT = 4333
 )
 
 var value int
@@ -90,8 +91,7 @@ func setValue(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	fmt.Printf("Running server on port: %d", PORT)
-
+	fmt.Printf("Running server on port: %d\n", PORT)
 	app := new(application)
 	app.auth.basic.username = os.Getenv("AUTH_USERNAME")
 	app.auth.basic.password = os.Getenv("AUTH_PASSWORD")
@@ -106,5 +106,17 @@ func main() {
 	r.HandleFunc("/api/value/{number:[0-9]+}", setValue).Methods("POST")
 
 	http.Handle("/", r)
+
+	value, found := os.LookupEnv("USE_TLS")
+	if found && value == "true" {
+		go func() {
+			fmt.Printf("Running tls server on port: %d\n", TLS_PORT)
+			err := http.ListenAndServeTLS(fmt.Sprintf(":%d", TLS_PORT), "/certs/tls.crt", "/certs/tls.key", nil)
+			if err != nil {
+				fmt.Println(err.Error())
+			}
+		}()
+	}
+
 	http.ListenAndServe(fmt.Sprintf(":%d", PORT), nil)
 }
