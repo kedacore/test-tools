@@ -16,6 +16,10 @@ func failOnError(err error, msg string) {
 
 func main() {
 	url := os.Args[1]
+	queueName := "hello"
+	if len(os.Args) == 3 {
+		queueName = os.Args[2]
+	}
 	conn, err := amqp.Dial(url)
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
@@ -27,12 +31,12 @@ func main() {
 	failOnError(err, "Failed to set QoS")
 
 	q, err := ch.QueueDeclare(
-		"hello", // name
-		false,   // durable
-		false,   // delete when unused
-		false,   // exclusive
-		false,   // no-wait
-		nil,     // arguments
+		queueName, // name
+		false,     // durable
+		false,     // delete when unused
+		false,     // exclusive
+		false,     // no-wait
+		nil,       // arguments
 	)
 	failOnError(err, "Failed to declare a queue")
 
