@@ -1,0 +1,15 @@
+name: e2e tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  arm_image_generation:
+    runs-on: ARM64
+    name: Generate ARM64 images for e2e tests
+    steps:
+      - name: ECHO
+        run: |
+          env
+          go version
