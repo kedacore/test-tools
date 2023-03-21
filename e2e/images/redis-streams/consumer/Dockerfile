@@ -1,1 +1,0 @@
-FROM abhirockzz/redis-streams-consumer@sha256:6cb26d184045d9bce495324a82ae2fda6ba4d52115497a0d331f990fbc8da0c7

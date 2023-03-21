@@ -1,1 +1,0 @@
-FROM abhirockzz/redis-streams-producer@sha256:79a6dda04b1a54c4ddd1e802ac8447b9c802adf9860cba8cf65017a3e333e7fa
