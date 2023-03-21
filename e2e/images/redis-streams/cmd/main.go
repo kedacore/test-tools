@@ -12,22 +12,10 @@ import (
 	"github.com/go-redis/redis/v9"
 )
 
-func getRedisClient() *redis.Client {
-	addr := os.Getenv("REDIS_ADDRESS")
-	if len(addr) == 0 {
-		addr = os.Getenv("REDIS_HOST") + ":" + os.Getenv("REDIS_PORT")
-	}
-	pass := os.Getenv("REDIS_PASSWORD")
-	opts := redis.Options{
-		Addr:     addr,
-		Password: pass,
-	}
-	return redis.NewClient(&opts)
-}
-
 func redisStreamConsumer(ctx context.Context) error {
-	client := getRedisClient()
+	client := GetRedisClient()
 	stream := os.Getenv("REDIS_STREAM_NAME")
+	del, _ := strconv.ParseBool(os.Getenv("DELETE_MESSAGES"))
 
 	consumerGroup := os.Getenv("REDIS_STREAM_CONSUMER_GROUP_NAME")
 	_, err := client.XGroupCreate(context.Background(), stream, consumerGroup, "0").Result()
@@ -35,38 +23,63 @@ func redisStreamConsumer(ctx context.Context) error {
 		return fmt.Errorf("failed to create consumer group: %s", err.Error())
 	}
 
-	for {
-		length, err := client.XLen(ctx, stream).Result()
-		if err != nil {
-			return err
-		}
-		if length == 0 {
-			continue
-		}
+	var ids []string
 
-		x := client.XReadGroup(ctx, &redis.XReadGroupArgs{
+	go func(ids *[]string) {
+		var pendingQuantity int64
+
+		for {
+			pending, err := client.XPending(ctx, stream, consumerGroup).Result()
+			if err != nil {
+				log.Printf("failed to get pending entries: %s", err.Error())
+				time.Sleep(2 * time.Second)
+				continue
+			}
+
+			if pending.Count == 0 {
+				time.Sleep(2 * time.Second)
+				continue
+			}
+
+			if pending.Count == pendingQuantity {
+				time.Sleep(10 * time.Second)
+				log.Printf("Acking %d entries...\n", len(*ids))
+				client.XAck(ctx, stream, consumerGroup, *ids...)
+				if del {
+					log.Printf("Deleting %d entries...\n", len(*ids))
+					client.XDel(ctx, stream, *ids...)
+				}
+			}
+
+			pendingQuantity = pending.Count
+			time.Sleep(2 * time.Second)
+		}
+	}(&ids)
+
+	for {
+		read := client.XReadGroup(ctx, &redis.XReadGroupArgs{
 			Group:    consumerGroup,
 			Consumer: "consumer",
 			Streams:  []string{stream, ">"},
 			Count:    1,
 		})
-		if x.Err() != nil {
-			return fmt.Errorf("failed to XREADGROUP from redis stream: %s", x.Err().Error())
-		}
-
-		res, err := x.Result()
+		res, err := read.Result()
 		if err != nil {
-			return fmt.Errorf("failed to fetch XREADGROUP result: %v", err)
+			return fmt.Errorf("failed to XREADGROUP from redis stream: %s", err)
 		}
-
-		log.Printf("read message no %s", res[0].Messages[0].Values["no"])
-		client.XDel(ctx, stream, res[0].Messages[0].ID)
+		if len(res[0].Messages) == 0 {
+			time.Sleep(500 * time.Millisecond)
+			continue
+		}
+		msg := res[0].Messages[0]
+		log.Printf("read message no %s", msg.Values["no"])
+		ids = append(ids, msg.ID)
 		time.Sleep(500 * time.Millisecond)
 	}
 }
 
 func redisStreamProducer(ctx context.Context) error {
-	client := getRedisClient()
+	client := GetRedisClient()
 	stream := os.Getenv("REDIS_STREAM_NAME")
 
 	count, err := strconv.ParseInt(os.Getenv("NUM_MESSAGES"), 10, 32)
