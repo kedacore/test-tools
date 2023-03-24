@@ -3,7 +3,9 @@
 trigger:
 - main
 
-pool: end-to-end-tests
+pool:
+  name: end-to-end-tests
+  demands: golang
 
 steps:
 - script: echo "Hello world"
