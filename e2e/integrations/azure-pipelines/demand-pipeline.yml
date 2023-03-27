@@ -4,7 +4,7 @@ trigger:
 - main
 
 pool:
-  name: end-to-end-tests
+  name: demand-end-to-end-tests
   demands: golang
 
 steps:
