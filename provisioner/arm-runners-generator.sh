@@ -14,7 +14,7 @@ do
     mkdir keda-arm64-$i
     cp -r template/* keda-arm64-$i
     cd keda-arm64-$i
-	echo HOME=$(pwd) > .env
+    echo HOME=$(pwd) > .env
     ./config.sh --url https://github.com/kedacore --token $TOKEN --name keda-arm64-$i --replace --unattended
 
     ./svc.sh install
@@ -26,14 +26,14 @@ done
 for i in {1..1}
 do
     mkdir keda-arm64-e2e-$i
-	cp -r template/* keda-arm64-e2e-$i
-	cd keda-arm64-e2e-$i
-	echo HOME=$(pwd) > .env
-	./config.sh --url https://github.com/kedacore --token $TOKEN --name keda-arm64-e2e-$i --labels e2e --replace --unattended
-
-	./svc.sh install
-	./svc.sh start
-	cd ..
+    cp -r template/* keda-arm64-e2e-$i
+    cd keda-arm64-e2e-$i
+    echo HOME=$(pwd) > .env
+    ./config.sh --url https://github.com/kedacore --token $TOKEN --name keda-arm64-e2e-$i --labels e2e --replace --unattended
+    
+    ./svc.sh install
+    ./svc.sh start
+    cd ..
 done
 
 # http add-on e2e runers
@@ -42,7 +42,7 @@ do
     mkdir keda-arm64-http-add-on-$i
     cp -r template/* keda-arm64-http-add-on-$i
     cd keda-arm64-http-add-on-$i
-	echo HOME=$(pwd) > .env
+    echo HOME=$(pwd) > .env
     ./config.sh --url https://github.com/kedacore --token $TOKEN --name keda-arm64-http-add-on-$i --labels http-add-on-e2e --replace --unattended
 
     ./svc.sh install
