@@ -88,6 +88,7 @@ func setValue(w http.ResponseWriter, r *http.Request) {
 
 	value, _ = strconv.Atoi(number)
 	json.NewEncoder(w).Encode(value)
+	fmt.Printf("new value: %d", value)
 }
 
 func main() {
