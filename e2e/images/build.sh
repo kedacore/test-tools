@@ -21,7 +21,7 @@ else
     do
         IMAGE_NAME=$(dirname $IMAGE | tr '/' '-')
         pushd $(dirname $IMAGE)
-        docker build --label "org.opencontainers.image.source https://github.com/kedacore/test-tools" -t ghcr.io/kedacore/tests-$IMAGE_NAME:$IMAGE_TAG -t ghcr.io/kedacore/tests-$IMAGE_NAME:latest .
+        docker build --label "org.opencontainers.image.source=https://github.com/kedacore/test-tools" -t ghcr.io/kedacore/tests-$IMAGE_NAME:$IMAGE_TAG -t ghcr.io/kedacore/tests-$IMAGE_NAME:latest .
         popd
     done
 fi
