@@ -5,12 +5,32 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 	"strconv"
 
 	"google.golang.org/grpc"
 
-	pb "github.com/kedacore/test-tools/external-scaler-e2e/externalscaler"
+	"github.com/gorilla/mux"
+	pb "github.com/kedacore/test-tools/external-scaler/externalscaler"
 )
+
+func setValue(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	number := vars["number"]
+	ExternalScalerValue, _ = strconv.ParseInt(number, 10, 64)
+	fmt.Printf("new value: %d", ExternalScalerValue)
+}
+
+func RunManagementApi() {
+	r := mux.NewRouter()
+	r.HandleFunc("/api/value/{number:[0-9]+}", setValue).Methods("POST")
+	http.Handle("/", r)
+	fmt.Printf("Running http management server on port: %d\n", 8080)
+	http.ListenAndServe(":8080", nil)
+}
+
+var ExternalScalerValue int64 = 0
 
 type ExternalScaler struct {
 	pb.UnimplementedExternalScalerServer
@@ -19,12 +39,7 @@ type ExternalScaler struct {
 func (es *ExternalScaler) IsActive(ctx context.Context, scaledObjectRef *pb.ScaledObjectRef) (*pb.IsActiveResponse, error) {
 	log.Println("Executing method IsActive")
 
-	metricValue, err := strconv.ParseInt(scaledObjectRef.ScalerMetadata["metricValue"], 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("invalid value for metric value - %s", err)
-	}
-
-	return &pb.IsActiveResponse{Result: metricValue > 0}, nil
+	return &pb.IsActiveResponse{Result: ExternalScalerValue > 0}, nil
 }
 
 func (es *ExternalScaler) GetMetricSpec(ctx context.Context, scaledObjectRef *pb.ScaledObjectRef) (*pb.GetMetricSpecResponse, error) {
@@ -49,14 +64,9 @@ func (es *ExternalScaler) GetMetrics(ctx context.Context, metricRequest *pb.GetM
 		return nil, fmt.Errorf("invalid metric name - %s", metricRequest.MetricName)
 	}
 
-	metricValue, err := strconv.ParseInt(metricRequest.ScaledObjectRef.ScalerMetadata["metricValue"], 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("invalid value for metric value - %s", err)
-	}
-
 	return &pb.GetMetricsResponse{
 		MetricValues: []*pb.MetricValue{
-			{MetricName: "external-scaler-e2e-test", MetricValue: metricValue},
+			{MetricName: "external-scaler-e2e-test", MetricValue: ExternalScalerValue},
 		},
 	}, nil
 }
@@ -68,12 +78,14 @@ func (es *ExternalScaler) StreamIsActive(scaledObjectRef *pb.ScaledObjectRef, ep
 }
 
 func main() {
+	go RunManagementApi()
+
 	grpcServer := grpc.NewServer()
 	lis, _ := net.Listen("tcp", ":6000")
 
 	pb.RegisterExternalScalerServer(grpcServer, &ExternalScaler{})
+	log.Println("Listening external scaler on :6000")
 
-	log.Println("Listening on :6000")
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatal(err)
 	}
