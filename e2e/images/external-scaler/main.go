@@ -19,7 +19,7 @@ func setValue(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	number := vars["number"]
 	ExternalScalerValue, _ = strconv.ParseInt(number, 10, 64)
-	fmt.Printf("new value: %d", ExternalScalerValue)
+	log.Printf("new value: %d\n", ExternalScalerValue)
 }
 
 func RunManagementApi() {
