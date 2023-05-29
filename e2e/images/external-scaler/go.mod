@@ -1,8 +1,9 @@
-module github.com/kedacore/test-tools/external-scaler-e2e
+module github.com/kedacore/test-tools/external-scaler
 
 go 1.17
 
 require (
+	github.com/gorilla/mux v1.8.0
 	google.golang.org/grpc v1.45.0
 	google.golang.org/protobuf v1.28.0
 )
