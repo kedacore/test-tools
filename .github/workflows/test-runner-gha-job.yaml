@@ -1,0 +1,17 @@
+name: Test Runner
+
+on:
+  workflow_dispatch:
+
+env:
+  TAG: "latest"
+
+jobs:
+  test:
+    runs-on: ["self-hosted", "Linux", "x64", "e2e-gha-tester"]
+
+    steps:
+      - name: echoer
+        run: |
+          echo I am a thing
+          echo I have finished being a thing
