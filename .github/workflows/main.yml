@@ -3,6 +3,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'e2e/images/**'
+      - 'Makefile'
+
 jobs:
   validate:
     name: Build
