@@ -6,11 +6,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
         with:
           fetch-depth: 1
 
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            e2e-images:
+              - 'e2e/images/**'
+
       - name: Build
+        if: steps.filter.outputs.e2e-images == 'true'
         run: make build-e2e-images
 
   validate-keda-tools:
