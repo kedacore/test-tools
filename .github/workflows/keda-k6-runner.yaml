@@ -1,4 +1,4 @@
-name: keda-tools
+name: keda-k6-runner
 on:
   push:
     branches:
@@ -8,8 +8,8 @@ on:
       - "Makefile"
 
 jobs:
-  validate:
-    name: Validate
+  generate:
+    name: Generate image
     runs-on: ARM64
     steps:
       - name: Check out code
