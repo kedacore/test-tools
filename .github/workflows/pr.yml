@@ -25,12 +25,12 @@ jobs:
     name: Validate keda-tools - ${{ matrix.name }}
     runs-on: ${{ matrix.runner }}
     strategy:
-       matrix:
+      matrix:
         include:
-        - runner: ARM64
-          name: arm64
-        - runner: ubuntu-latest
-          name: amd64
+          - runner: ARM64
+            name: arm64
+          - runner: ubuntu-latest
+            name: amd64
     steps:
       - uses: actions/checkout@v3
 
@@ -56,3 +56,39 @@ jobs:
       - name: Build tools
         if: steps.filter.outputs.tools == 'true'
         run: make build-keda-tools
+
+  validate-keda-k6-runner:
+    name: Validate keda-k6-runner - ${{ matrix.name }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - runner: ARM64
+            name: arm64
+          - runner: ubuntu-latest
+            name: amd64
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Register workspace path
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            k6-runner:
+              - 'k6-runner/**'
+              - 'Makefile'
+
+      - name: Set up QEMU
+        if: steps.filter.outputs.k6-runner == 'true'
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        if: steps.filter.outputs.k6-runner == 'true'
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build k6-runner
+        if: steps.filter.outputs.k6-runner == 'true'
+        run: make build-keda-k6-runner
