@@ -12,11 +12,10 @@ RUN GOOS="${TARGETOS}" GOARCH="${TARGETARCH}" xk6 build \
         --with github.com/grafana/xk6-disruptor@latest \
         --with github.com/JorTurFer/xk6-input-prometheus@latest
 
-FROM alpine:3.18
-RUN apk add --no-cache ca-certificates && \
-    adduser -D -u 65532 -g 65532 k6
+FROM gcr.io/distroless/static:nonroot
+WORKDIR /
 COPY --from=builder /tmp/k6 /usr/bin/k6
-USER 65532
-WORKDIR /home/k6
+# 65532 is numeric for nonroot
+USER 65532:65532
 
 ENTRYPOINT ["k6"]
