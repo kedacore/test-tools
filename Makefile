@@ -2,11 +2,12 @@ KEDA_TOOLS_GO_VERSION = 1.20.5
 
 IMAGE_REGISTRY ?= ghcr.io
 IMAGE_REPO     ?= kedacore
-IMAGE_KEDA_TOOLS = $(IMAGE_REGISTRY)/$(IMAGE_REPO)/keda-tools:$(KEDA_TOOLS_GO_VERSION)
+IMAGE_KEDA_TOOLS ?= $(IMAGE_REGISTRY)/$(IMAGE_REPO)/keda-tools:$(KEDA_TOOLS_GO_VERSION)
+IMAGE_KEDA_K6_RUNNER ?= $(IMAGE_REGISTRY)/$(IMAGE_REPO)/keda-k6-runner
 
 BUILD_PLATFORMS ?= linux/amd64,linux/arm64
 
-E2E_IMAGE_TAG := $(shell git describe --always --abbrev=7)
+IMAGE_TAG := $(shell git describe --always --abbrev=7)
 
 ##################################################
 # e2e tests images                               #
@@ -15,10 +16,10 @@ E2E_IMAGE_TAG := $(shell git describe --always --abbrev=7)
 e2e-images: build-e2e-images push-e2e-images
 
 build-e2e-images:
-	IMAGE_TAG=$(E2E_IMAGE_TAG) ./e2e/images/build.sh
+	IMAGE_TAG=$(IMAGE_TAG) ./e2e/images/build.sh
 
 push-e2e-images:
-	IMAGE_TAG=$(E2E_IMAGE_TAG) ./e2e/images/build.sh --push
+	IMAGE_TAG=$(IMAGE_TAG) ./e2e/images/build.sh --push
 
 ##################################################
 # tools image                                    #
@@ -29,3 +30,13 @@ build-keda-tools:
 
 push-keda-tools:
 	docker buildx build --push --platform=${BUILD_PLATFORMS} -f tools/Dockerfile -t ${IMAGE_KEDA_TOOLS} --build-arg GO_VERSION=$(KEDA_TOOLS_GO_VERSION) .
+
+##################################################
+# k6-runner image                                #
+##################################################
+
+build-keda-k6-runner:
+	docker build -f k6-runner/Dockerfile -t $(IMAGE_KEDA_K6_RUNNER):latest -t ${IMAGE_KEDA_K6_RUNNER}:$(IMAGE_TAG) .
+
+push-keda-k6-runner:
+	docker buildx build --push --platform=${BUILD_PLATFORMS} -f k6-runner/Dockerfile -t ${IMAGE_KEDA_K6_RUNNER}:latest -t ${IMAGE_KEDA_K6_RUNNER}:$(IMAGE_TAG) .
