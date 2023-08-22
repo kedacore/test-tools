@@ -4,7 +4,7 @@ RUN apk --no-cache add git
 
 ARG TARGETOS
 ARG TARGETARCH
-RUN GOOS="${TARGETOS}" GOARCH="${TARGETARCH}" go install go.k6.io/xk6/cmd/xk6@latest
+RUN go install go.k6.io/xk6/cmd/xk6@latest
 RUN GOOS="${TARGETOS}" GOARCH="${TARGETARCH}" xk6 build \
         --output /tmp/k6 \
         --with github.com/grafana/xk6-kubernetes@latest \
