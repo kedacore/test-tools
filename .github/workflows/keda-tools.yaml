@@ -4,12 +4,12 @@ on:
     branches:
       - main
     paths:
-      - 'tools/**'
-      - 'Makefile'
+      - "tools/**"
+      - "Makefile"
 
 jobs:
-  validate:
-    name: Validate
+  generate:
+    name: Generate image
     runs-on: ARM64
     steps:
       - name: Check out code
