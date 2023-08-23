@@ -7,7 +7,7 @@ ARG TARGETARCH
 RUN go install go.k6.io/xk6/cmd/xk6@latest
 RUN GOOS="${TARGETOS}" GOARCH="${TARGETARCH}" xk6 build \
         --output /tmp/k6 \
-        --with github.com/grafana/xk6-kubernetes@ad619e1 \
+        --with github.com/grafana/xk6-kubernetes@e666215 \
         --with github.com/grafana/xk6-disruptor@latest \
         --with github.com/JorTurFer/xk6-input-prometheus@latest
 
