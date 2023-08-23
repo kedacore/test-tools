@@ -9,5 +9,5 @@ Repository provides all tooling for running our tests:
 - Docker images which are available on [GitHub Container Registry](https://github.com/orgs/kedacore/packages?type=source)
 - Integrations with 3rd party services, such as Azure Pipelines
 
-We are a Cloud Native Computing Foundation (CNCF) incubation project.
+We are a Cloud Native Computing Foundation (CNCF) graduated project.
 ![CNCF Logo](https://raw.githubusercontent.com/kedacore/keda/main/images/logo-cncf.svg)
