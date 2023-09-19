@@ -1,4 +1,4 @@
-# KEDA Sample for Metrics API
+# KEDA Sample for CloudEvents
 
 
 A simple Docker container written in **go** that will receive CloudEvent through http.
