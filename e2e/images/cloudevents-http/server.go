@@ -23,19 +23,6 @@ type EmitData struct {
 	Message string `json:"message"`
 }
 
-func saveCloudEvent(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
-
-	for k, v := range vars {
-		fmt.Printf("k:%s v: %s", k, v)
-	}
-
-	for k, v := range r.Header {
-		fmt.Printf("Header field %q, Value %q\n", k, v)
-	}
-}
-
 func main() {
 	ctx := context.Background()
 	p, err := cloudevents.NewHTTP()
@@ -56,19 +43,18 @@ func main() {
 		vars := mux.Vars(r)
 
 		eventreason := vars["eventreason"]
+		filteredEvents := []cloudevents.Event{}
+
 		for _, v := range events {
 			emitData := EmitData{}
 			if err := json.Unmarshal(v.Data(), &emitData); err != nil {
 				fmt.Printf(emitData.Reason)
 			} else if emitData.Reason == eventreason {
-				json.NewEncoder(w).Encode(v)
-				return
-			} else {
-				json.NewEncoder(w).Encode("Not Found")
-				return
+				filteredEvents = append(filteredEvents, v)
 			}
 		}
-		json.NewEncoder(w).Encode("Empty")
+
+		json.NewEncoder(w).Encode(filteredEvents)
 	})
 
 	router.Handle("/", h)
