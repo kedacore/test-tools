@@ -4,10 +4,11 @@ RUN apk --no-cache add git
 
 ARG TARGETOS
 ARG TARGETARCH
+ARG K6_VERSION
 RUN go install go.k6.io/xk6/cmd/xk6@latest
-RUN GOOS="${TARGETOS}" GOARCH="${TARGETARCH}" xk6 build \
+RUN GOOS="${TARGETOS}" GOARCH="${TARGETARCH}" xk6 build "${K6_VERSION}" \
         --output /tmp/k6 \
-        --with github.com/grafana/xk6-kubernetes@e666215 \
+        --with github.com/grafana/xk6-kubernetes@latest \
         --with github.com/grafana/xk6-disruptor@latest \
         --with github.com/JorTurFer/xk6-input-prometheus@latest
 

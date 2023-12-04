@@ -1,4 +1,5 @@
 KEDA_TOOLS_GO_VERSION = 1.20.8
+K6_VERSION = 0.47
 
 IMAGE_REGISTRY ?= ghcr.io
 IMAGE_REPO     ?= kedacore
@@ -36,7 +37,7 @@ push-keda-tools:
 ##################################################
 
 build-keda-k6-runner:
-	docker build -f k6-runner/Dockerfile -t $(IMAGE_KEDA_K6_RUNNER):latest -t ${IMAGE_KEDA_K6_RUNNER}:$(IMAGE_TAG) .
+	docker build -f k6-runner/Dockerfile -t ${IMAGE_KEDA_K6_RUNNER}:$(K6_VERSION) --build-arg K6_VERSION=$(K6_VERSION) .
 
 push-keda-k6-runner:
-	docker buildx build --push --platform=${BUILD_PLATFORMS} -f k6-runner/Dockerfile -t ${IMAGE_KEDA_K6_RUNNER}:latest -t ${IMAGE_KEDA_K6_RUNNER}:$(IMAGE_TAG) .
+	docker buildx build --push --platform=${BUILD_PLATFORMS} -f k6-runner/Dockerfile -t ${IMAGE_KEDA_K6_RUNNER}:$(K6_VERSION) --build-arg K6_VERSION=$(K6_VERSION) .
