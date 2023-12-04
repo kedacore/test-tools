@@ -40,4 +40,9 @@ build-keda-k6-runner:
 	docker build -f k6-runner/Dockerfile -t ${IMAGE_KEDA_K6_RUNNER}:$(K6_VERSION) --build-arg K6_VERSION=$(K6_VERSION) .
 
 push-keda-k6-runner:
-	docker buildx build --push --platform=${BUILD_PLATFORMS} -f k6-runner/Dockerfile -t ${IMAGE_KEDA_K6_RUNNER}:$(K6_VERSION) --build-arg K6_VERSION=$(K6_VERSION) .
+	docker buildx build --push --platform=${BUILD_PLATFORMS} \
+	-f k6-runner/Dockerfile \
+	-t ${IMAGE_KEDA_K6_RUNNER}:latest \
+	-t ${IMAGE_KEDA_K6_RUNNER}:$(K6_VERSION) \
+	-t ${IMAGE_KEDA_K6_RUNNER}:$(K6_VERSION)-$(IMAGE_TAG) \
+	--build-arg K6_VERSION=$(K6_VERSION) .
