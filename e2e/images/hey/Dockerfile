@@ -27,7 +27,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /go/bin/hey hey.go
 
 ###############################################################################
 # final stage
-FROM scratch
+FROM alpine
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /etc/passwd /etc/passwd
 COPY --from=build /etc/group /etc/group
