@@ -1,0 +1,10 @@
+# Pipeline to use during our end-to-end tests for our Azure Pipelines scaler
+
+trigger:
+- main
+
+pool: regular-end-to-end-tests-aad-wi
+
+steps:
+- script: echo "Hello world"
+  displayName: Delay pipeline
