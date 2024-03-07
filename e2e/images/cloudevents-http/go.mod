@@ -3,7 +3,7 @@ module github.com/adborroto/sample-keda-metrics-api
 go 1.17
 
 require (
-	github.com/cloudevents/sdk-go/v2 v2.14.0
+	github.com/cloudevents/sdk-go/v2 v2.15.2
 	github.com/gorilla/mux v1.8.0
 )
 
