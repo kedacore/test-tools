@@ -37,15 +37,20 @@ RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/s
     rm kubectl.sha256
 
 # Install operator-sdk
-RUN RELEASE_VERSION=v1.0.1 && \
-    curl -LO https://github.com/operator-framework/operator-sdk/releases/download/${RELEASE_VERSION}/operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu && \
-    curl -LO https://github.com/operator-framework/operator-sdk/releases/download/${RELEASE_VERSION}/operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu.asc && \
-    gpg --keyserver keyserver.ubuntu.com --recv-key 0CF50BEE7E4DF6445E08C0EA9AFDE59E90D2B445 && \
-    gpg --verify operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu.asc && \
-    chmod +x operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu && \
+RUN apt-get update && \
+    apt-get install -y jq && \
+    ARCH="$(case $(uname -m) in x86_64) echo -n amd64 ;; aarch64) echo -n arm64 ;; *) echo -n $(uname -m) ;; esac)" && \
+    OS=$(uname | awk '{print tolower($0)}') && \
+    RELEASE_VERSION="$(curl -s https://api.github.com/repos/operator-framework/operator-sdk/releases/latest | jq -r .tag_name)" && \
+    curl -LO https://github.com/operator-framework/operator-sdk/releases/download/${RELEASE_VERSION}/operator-sdk_${OS}_${ARCH} && \
+    curl -LO https://github.com/operator-framework/operator-sdk/releases/download/${RELEASE_VERSION}/checksums.txt && \
+    curl -LO https://github.com/operator-framework/operator-sdk/releases/download/${RELEASE_VERSION}/checksums.txt.asc && \
+    gpg --keyserver keyserver.ubuntu.com --recv-key 052996E2A20B5C7E && \
+    gpg --verify checksums.txt.asc && \
+    sha256sum --ignore-missing --check checksums.txt && \
+    chmod +x operator-sdk_${OS}_${ARCH} && \
     mkdir -p /usr/local/bin/ && \
-    cp operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu /usr/local/bin/operator-sdk && \
-    rm operator-sdk-${RELEASE_VERSION}-x86_64-linux-gnu
+    mv operator-sdk_${OS}_${ARCH} /usr/local/bin/operator-sdk
 
 ENV PATH=${PATH}:/usr/local/go/bin
 ENV GOROOT=/usr/local/go
