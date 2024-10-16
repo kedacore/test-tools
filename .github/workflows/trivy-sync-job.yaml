@@ -1,0 +1,29 @@
+name: Periodic trivy db copy job
+
+# Run every hour
+on:
+  schedule:
+    - cron: '0 * * * *'  # Runs every hour at the top of the hour
+
+jobs:
+  copy-oci-trivy-db-image:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write    # for GHCR write access
+
+    steps:
+      # Set up ORAS cli
+      - uses: oras-project/setup-oras@v1
+
+      # Authenticate to the source and target registries (GitHub Container Registry)
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Copy the OCI image from Aqua Security to Kedacore
+      - name: Copy OCI image using ORAS
+        run: |
+          oras cp ghcr.io/aquasecurity/trivy-db:2 ghcr.io/kedacore/trivy-db:2
