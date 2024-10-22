@@ -3,7 +3,7 @@ name: Periodic trivy db copy job
 # Run every hour
 on:
   schedule:
-    - cron: '0 * * * *'  # Runs every hour at the top of the hour
+    - cron: '15 * * * *'  # Runs every hour at the top of the hour
 
 jobs:
   copy-oci-trivy-db-image:
