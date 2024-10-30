@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/go-stomp/stomp/v3"
 )
@@ -37,8 +38,7 @@ func publishMessages() {
 
 	}
 	log.Printf("Publishing %v messages", messages)
-	artemisData := getArtemisMQData()
-	conn, err := stomp.Dial("tcp", artemisData.Endpoint, stomp.ConnOpt.Login(artemisData.User, artemisData.Password))
+	conn, err := getConnection()
 	if err != nil {
 		panic(err)
 	}
@@ -59,8 +59,16 @@ func publishMessages() {
 
 func consumeMessages() {
 	log.Print("Reading messages")
-	artemisData := getArtemisMQData()
-	conn, err := stomp.Dial("tcp", artemisData.Endpoint, stomp.ConnOpt.Login(artemisData.User, artemisData.Password))
+	sleep := 100
+	if val, ok := os.LookupEnv("ARTEMIS_MESSAGE_SLEEP_MS"); ok {
+		s, err := strconv.Atoi(val)
+		if err != nil {
+			panic(err)
+		}
+		sleep = s
+	}
+
+	conn, err := getConnection()
 	if err != nil {
 		panic(err)
 	}
@@ -79,6 +87,7 @@ func consumeMessages() {
 			panic(fmt.Errorf("failed to decode message: %v: %v", msg.Header, err))
 		}
 		fmt.Println(*m)
+		time.Sleep(time.Duration(sleep * int(time.Millisecond)))
 	}
 }
 
@@ -88,12 +97,8 @@ type ArtemisMQData struct {
 	Endpoint string
 }
 
-func getArtemisMQData() ArtemisMQData {
-	return ArtemisMQData{
-		Password: os.Getenv("ARTEMIS_PASSWORD"),
-		User:     os.Getenv("ARTEMIS_USERNAME"),
-		Endpoint: fmt.Sprintf("tcp://%s:%s", os.Getenv("ARTEMIS_SERVER_HOST"), os.Getenv("ARTEMIS_SERVER_PORT")),
-	}
+func getConnection() (*stomp.Conn, error) {
+	return stomp.Dial("tcp", fmt.Sprintf("%s:%s", os.Getenv("ARTEMIS_SERVER_HOST"), os.Getenv("ARTEMIS_SERVER_PORT")), stomp.ConnOpt.Login(os.Getenv("ARTEMIS_USERNAME"), os.Getenv("ARTEMIS_PASSWORD")))
 }
 
 func encodeGob(message any) ([]byte, error) {
