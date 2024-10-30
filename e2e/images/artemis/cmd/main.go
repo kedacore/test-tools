@@ -73,7 +73,7 @@ func consumeMessages() {
 		panic(err)
 	}
 	defer conn.Disconnect()
-	sub, err := conn.Subscribe(destination, stomp.AckAuto, stomp.SubscribeOpt.Header("subscription-type", "ANYCAST"))
+	sub, err := conn.Subscribe(destination, stomp.AckClientIndividual, stomp.SubscribeOpt.Header("subscription-type", "ANYCAST"))
 	if err != nil {
 		panic(fmt.Errorf("could not subscribe to queue %s: %v", destination, err))
 	}
@@ -87,6 +87,7 @@ func consumeMessages() {
 			panic(fmt.Errorf("failed to decode message: %v: %v", msg.Header, err))
 		}
 		log.Println(*m)
+		conn.Ack(msg)
 		time.Sleep(time.Duration(sleep * int(time.Millisecond)))
 	}
 }
