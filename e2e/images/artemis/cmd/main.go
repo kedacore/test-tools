@@ -86,7 +86,7 @@ func consumeMessages() {
 		if err != nil {
 			panic(fmt.Errorf("failed to decode message: %v: %v", msg.Header, err))
 		}
-		fmt.Println(*m)
+		log.Println(*m)
 		time.Sleep(time.Duration(sleep * int(time.Millisecond)))
 	}
 }
