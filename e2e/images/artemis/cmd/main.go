@@ -91,12 +91,6 @@ func consumeMessages() {
 	}
 }
 
-type ArtemisMQData struct {
-	User     string
-	Password string
-	Endpoint string
-}
-
 func getConnection() (*stomp.Conn, error) {
 	return stomp.Dial("tcp", fmt.Sprintf("%s:%s", os.Getenv("ARTEMIS_SERVER_HOST"), os.Getenv("ARTEMIS_SERVER_PORT")), stomp.ConnOpt.Login(os.Getenv("ARTEMIS_USERNAME"), os.Getenv("ARTEMIS_PASSWORD")))
 }
