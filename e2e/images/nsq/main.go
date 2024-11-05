@@ -7,24 +7,28 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/nsqio/go-nsq"
 )
 
-type Handler struct{}
+type Handler struct {
+	sleepDuration time.Duration
+}
 
 func (h *Handler) HandleMessage(m *nsq.Message) error {
 	log.Printf("Received message: %s", m.Body)
+	time.Sleep(h.sleepDuration)
 	return nil
 }
 
-func nsqConsumer(config *nsq.Config, nsqlookupdHTTPAddress, topic, channel string) error {
+func nsqConsumer(config *nsq.Config, nsqlookupdHTTPAddress, topic, channel string, sleepDuration time.Duration) error {
 	consumer, err := nsq.NewConsumer(topic, channel, config)
 	if err != nil {
 		return err
 	}
 
-	consumer.AddHandler(&Handler{})
+	consumer.AddHandler(&Handler{sleepDuration: sleepDuration})
 
 	err = consumer.ConnectToNSQLookupd(nsqlookupdHTTPAddress)
 	if err != nil {
@@ -70,6 +74,7 @@ func main() {
 	mode := flag.String("mode", "", "consumer or producer")
 	topic := flag.String("topic", "", "topic name")
 	channel := flag.String("channel", "", "channel name")
+	sleepDuration := flag.Duration("sleep-duration", 0*time.Second, "consumer message processing time")
 	nsqlookupdHTTPAddress := flag.String("nsqlookupd-http-address", "", "nsqlookupd HTTP address")
 	messageCount := flag.Int("message-count", 1, "number of messages to send")
 	nsqdTCPAddress := flag.String("nsqd-tcp-address", "", "nsqd TCP address")
@@ -83,7 +88,7 @@ func main() {
 		if *topic == "" || *channel == "" || *nsqlookupdHTTPAddress == "" {
 			log.Fatalf("topic, channel, and nsqlookupd-http-address are required\n")
 		}
-		if err := nsqConsumer(config, *nsqlookupdHTTPAddress, *topic, *channel); err != nil {
+		if err := nsqConsumer(config, *nsqlookupdHTTPAddress, *topic, *channel, *sleepDuration); err != nil {
 			log.Fatalf("read from nsq failed: %w\n", err)
 		}
 	case "producer":
