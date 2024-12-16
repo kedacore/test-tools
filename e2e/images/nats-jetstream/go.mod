@@ -1,6 +1,6 @@
 module github.com/kedacore/test-tools
 
-go 1.19
+go 1.23
 
 require github.com/nats-io/nats.go v1.31.0
 
