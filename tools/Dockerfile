@@ -5,13 +5,13 @@ RUN apt update && \
     apt-get install software-properties-common -y
 RUN apt-add-repository ppa:git-core/ppa && \
     apt update && \
-    apt install -y wget curl build-essential git git-lfs unzip
+    apt install -y wget curl build-essential git git-lfs unzip jq
 
 # Use Bash instead of Dash
 RUN ln -sf bash /bin/sh
 
 # Install python3
-RUN apt install -y python3 python3-pip
+RUN apt install -y python3 python3-pip python3-yaml
 
 # Install azure-cli
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
