@@ -19,18 +19,35 @@ func setValue(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	number := vars["number"]
 	ExternalScalerValue, _ = strconv.ParseInt(number, 10, 64)
-	log.Printf("new value: %d\n", ExternalScalerValue)
+	log.Printf("new int value: %d\n", ExternalScalerValue)
+	if ExternalScalerValue < 0 {
+		log.Print("negative -> it won't be included in GetMetricsResponse")
+	}
+}
+
+func setFloatValue(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	number := vars["number"]
+	ExternalScalerValueFloat, _ = strconv.ParseFloat(number, 64)
+	log.Printf("new float value: %f\n", ExternalScalerValueFloat)
+	if ExternalScalerValueFloat < 0 {
+		log.Print("negative -> it won't be included in GetMetricsResponse")
+	}
 }
 
 func RunManagementApi() {
 	r := mux.NewRouter()
-	r.HandleFunc("/api/value/{number:[0-9]+}", setValue).Methods("POST")
+	r.HandleFunc("/api/value/{number:[-0-9]+}", setValue).Methods("POST")
+	r.HandleFunc("/api/floatvalue/{number:[-\\.0-9]+}", setFloatValue).Methods("POST")
 	http.Handle("/", r)
 	fmt.Printf("Running http management server on port: %d\n", 8080)
+	fmt.Print("example usage:\n - POST -> localhost:8080/api/value/3\n - POST -> localhost:8080/api/floatvalue/3.14\n")
+	fmt.Print("if you set one of those values as negative, it won't be sent in the payload\n")
 	http.ListenAndServe(":8080", nil)
 }
 
 var ExternalScalerValue int64 = 0
+var ExternalScalerValueFloat = .0
 
 type ExternalScaler struct {
 	pb.UnimplementedExternalScalerServer
@@ -45,14 +62,14 @@ func (es *ExternalScaler) IsActive(ctx context.Context, scaledObjectRef *pb.Scal
 func (es *ExternalScaler) GetMetricSpec(ctx context.Context, scaledObjectRef *pb.ScaledObjectRef) (*pb.GetMetricSpecResponse, error) {
 	log.Println("Executing method GetMetricSpec")
 
-	metricThreshold, err := strconv.ParseInt(scaledObjectRef.ScalerMetadata["metricThreshold"], 10, 64)
+	metricThreshold, err := strconv.ParseFloat(scaledObjectRef.ScalerMetadata["metricThreshold"], 64)
 	if err != nil {
 		return nil, fmt.Errorf("invalid value for metric threshold - %s", err)
 	}
 
 	return &pb.GetMetricSpecResponse{
 		MetricSpecs: []*pb.MetricSpec{
-			{MetricName: "external-scaler-e2e-test", TargetSize: metricThreshold},
+			{MetricName: "external-scaler-e2e-test", TargetSizeFloat: metricThreshold},
 		},
 	}, nil
 }
@@ -63,11 +80,16 @@ func (es *ExternalScaler) GetMetrics(ctx context.Context, metricRequest *pb.GetM
 	if metricRequest.MetricName != "external-scaler-e2e-test" {
 		return nil, fmt.Errorf("invalid metric name - %s", metricRequest.MetricName)
 	}
+	mv := &pb.MetricValue{MetricName: "external-scaler-e2e-test"}
+	if ExternalScalerValue >= 0 {
+		mv.MetricValue = ExternalScalerValue
+	}
+	if ExternalScalerValueFloat >= 0 {
+		mv.MetricValueFloat = ExternalScalerValueFloat
+	}
 
 	return &pb.GetMetricsResponse{
-		MetricValues: []*pb.MetricValue{
-			{MetricName: "external-scaler-e2e-test", MetricValue: ExternalScalerValue},
-		},
+		MetricValues: []*pb.MetricValue{mv},
 	}, nil
 }
 
