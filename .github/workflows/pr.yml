@@ -69,8 +69,6 @@ jobs:
             name: arm64
           - runner: ubuntu-latest
             name: amd64
-          - runner: ubuntu-latest
-            name: s390x
     steps:
       - uses: actions/checkout@v3
 
