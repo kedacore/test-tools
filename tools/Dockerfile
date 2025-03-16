@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 # Install prerequisite
 RUN apt update && \
@@ -57,16 +57,36 @@ ENV GOROOT=/usr/local/go
 ENV GOPATH=/go
 ENV PATH=${PATH}:${GOPATH}/bin
 
-# Install gh
-RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null && \
-    apt update && \
-    apt install -y gh
+# Install GitHub CLI (gh)
+RUN ARCH=$(dpkg --print-architecture) && \
+    case "$ARCH" in \
+        "amd64" | "arm64") \
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg && \
+            echo "deb [arch=$ARCH signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null && \
+            apt update && \
+            apt install -y gh \
+        ;; \
+        "s390x") \
+            echo "deb http://ports.ubuntu.com/ubuntu-ports jammy universe" | tee /etc/apt/sources.list.d/gh.list > /dev/null && \
+            apt update && apt install -y gh \
+        ;; \
+        *) \
+            echo "Unsupported architecture: $ARCH" && exit 1 \
+        ;; \
+    esac
 
 # Protocol Buffer Compiler
+
 RUN PROTOC_VERSION=21.9 \
-    && if [ $(dpkg --print-architecture) = "amd64" ]; then PROTOC_ARCH="x86_64"; else PROTOC_ARCH="aarch_64" ; fi \
-    && curl -LO "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-$PROTOC_ARCH.zip" \
-    && unzip "protoc-${PROTOC_VERSION}-linux-$PROTOC_ARCH.zip" -d $HOME/.local \
+    && case $(dpkg --print-architecture) in \
+        "amd64") PROTOC_ARCH="x86_64" ;; \
+        "arm64") PROTOC_ARCH="aarch_64" ;; \
+        "s390x") PROTOC_ARCH="s390_64" ;; \
+        *) echo "Unsupported architecture"; exit 1 ;; \
+    esac \
+    && curl -LO "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-${PROTOC_ARCH}.zip" \
+    && unzip "protoc-${PROTOC_VERSION}-linux-${PROTOC_ARCH}.zip" -d $HOME/.local \
     && mv $HOME/.local/bin/protoc /usr/local/bin/protoc \
     && mv $HOME/.local/include/ /usr/local/bin/include/
+
+
