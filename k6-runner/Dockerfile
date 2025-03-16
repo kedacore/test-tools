@@ -1,4 +1,4 @@
-FROM --platform=${BUILDPLATFORM} golang:1.22.12-alpine3.21 as builder
+FROM --platform=${BUILDPLATFORM} golang:1.21-alpine3.18 as builder
 WORKDIR $GOPATH/src/go.k6.io/k6
 RUN apk --no-cache add git
 
