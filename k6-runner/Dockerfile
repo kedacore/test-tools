@@ -1,4 +1,4 @@
-FROM --platform=${BUILDPLATFORM} golang:1.21-alpine3.18 as builder
+FROM --platform=${BUILDPLATFORM} golang:1.23-alpine3.19 as builder
 WORKDIR $GOPATH/src/go.k6.io/k6
 RUN apk --no-cache add git
 
@@ -13,7 +13,7 @@ RUN GOOS="${TARGETOS}" GOARCH="${TARGETARCH}" xk6 build "${K6_VERSION}" \
         --with github.com/JorTurFer/xk6-input-prometheus@latest
 
 # Runtime 
-FROM alpine:3.18 as release
+FROM alpine:3.19 as release
 
 RUN apk add --no-cache ca-certificates && \
     adduser -D -u 12345 -g 12345 k6
