@@ -1,6 +1,7 @@
 module github.com/kedacore/test-tools
 
-go 1.18
+go 1.24
+toolchain go1.24.1
 
 require (
 	github.com/Azure/azure-amqp-common-go/v3 v3.2.3
@@ -21,7 +22,7 @@ require (
 	github.com/Azure/go-autorest/logger v0.2.1 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
 	github.com/devigned/tab v0.1.1 // indirect
-	github.com/golang-jwt/jwt/v4 v4.5.1 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	golang.org/x/crypto v0.35.0 // indirect
