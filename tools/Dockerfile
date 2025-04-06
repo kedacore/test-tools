@@ -2,10 +2,7 @@ FROM ubuntu:22.04
 
 # Install prerequisite
 RUN apt update && \
-    apt-get install software-properties-common -y
-RUN apt-add-repository ppa:git-core/ppa && \
-    apt update && \
-    apt install -y wget curl build-essential git git-lfs unzip jq
+    apt-get install software-properties-common wget curl build-essential git git-lfs unzip jq -y
 
 # Use Bash instead of Dash
 RUN ln -sf bash /bin/sh
