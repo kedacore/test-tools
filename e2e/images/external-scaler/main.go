@@ -43,10 +43,10 @@ func RunManagementApi() {
 		w.WriteHeader(http.StatusOK)
 	}).Methods("GET")
 	http.Handle("/", r)
-	fmt.Printf("Running http management server on port: %d\n", 8082)
-	fmt.Print("example usage:\n - POST -> localhost:8082/api/value/3\n - POST -> localhost:8082/api/floatvalue/3.14\n")
+	fmt.Printf("Running http management server on port: %d\n", 8080)
+	fmt.Print("example usage:\n - POST -> localhost:8080/api/value/3\n - POST -> localhost:8080/api/floatvalue/3.14\n")
 	fmt.Print("if you set one of those values as negative, it won't be sent in the payload\n")
-	http.ListenAndServe(":8082", nil)
+	http.ListenAndServe(":8080", nil)
 }
 
 var ExternalScalerValue int64 = 0
