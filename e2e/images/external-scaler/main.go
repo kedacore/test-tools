@@ -56,6 +56,8 @@ var ExternalScalerValueFloat = .0
 
 type ExternalScaler struct {
 	pb.UnimplementedExternalScalerServer
+
+	ctx context.Context
 }
 
 func (es *ExternalScaler) IsActive(ctx context.Context, scaledObjectRef *pb.ScaledObjectRef) (*pb.IsActiveResponse, error) {
@@ -100,11 +102,22 @@ func (es *ExternalScaler) GetMetrics(ctx context.Context, metricRequest *pb.GetM
 
 func (es *ExternalScaler) StreamIsActive(scaledObjectRef *pb.ScaledObjectRef, epsServer pb.ExternalScaler_StreamIsActiveServer) error {
 	log.Println("Executing method StreamIsActive")
-
-	return nil
+	for {
+		tmr := time.NewTimer(time.Second)
+		select {
+		case <-es.ctx.Done():
+			tmr.Stop()
+			return nil
+		case <-tmr.C:
+			tmr.Stop()
+			epsServer.Send(&pb.IsActiveResponse{Result: ExternalScalerValue > 0})
+		}
+	}
 }
 
 func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	go RunManagementApi()
 
 	grpcServer := grpc.NewServer(
@@ -122,7 +135,7 @@ func main() {
 	)
 	lis, _ := net.Listen("tcp", ":6000")
 
-	pb.RegisterExternalScalerServer(grpcServer, &ExternalScaler{})
+	pb.RegisterExternalScalerServer(grpcServer, &ExternalScaler{ctx: ctx})
 	log.Println("Listening external scaler on :6000")
 
 	if err := grpcServer.Serve(lis); err != nil {
