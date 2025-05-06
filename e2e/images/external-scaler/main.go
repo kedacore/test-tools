@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"strconv"
+	"time"
 
 	"google.golang.org/grpc"
 
@@ -39,6 +40,9 @@ func RunManagementApi() {
 	r := mux.NewRouter()
 	r.HandleFunc("/api/value/{number:[-0-9]+}", setValue).Methods("POST")
 	r.HandleFunc("/api/floatvalue/{number:[-\\.0-9]+}", setFloatValue).Methods("POST")
+	r.HandleFunc("/ready", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}).Methods("GET")
 	http.Handle("/", r)
 	fmt.Printf("Running http management server on port: %d\n", 8080)
 	fmt.Print("example usage:\n - POST -> localhost:8080/api/value/3\n - POST -> localhost:8080/api/floatvalue/3.14\n")
@@ -51,6 +55,8 @@ var ExternalScalerValueFloat = .0
 
 type ExternalScaler struct {
 	pb.UnimplementedExternalScalerServer
+
+	ctx context.Context
 }
 
 func (es *ExternalScaler) IsActive(ctx context.Context, scaledObjectRef *pb.ScaledObjectRef) (*pb.IsActiveResponse, error) {
@@ -95,17 +101,28 @@ func (es *ExternalScaler) GetMetrics(ctx context.Context, metricRequest *pb.GetM
 
 func (es *ExternalScaler) StreamIsActive(scaledObjectRef *pb.ScaledObjectRef, epsServer pb.ExternalScaler_StreamIsActiveServer) error {
 	log.Println("Executing method StreamIsActive")
-
-	return nil
+	for {
+		tmr := time.NewTimer(time.Second)
+		select {
+		case <-es.ctx.Done():
+			tmr.Stop()
+			return nil
+		case <-tmr.C:
+			tmr.Stop()
+			epsServer.Send(&pb.IsActiveResponse{Result: ExternalScalerValue > 0})
+		}
+	}
 }
 
 func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	go RunManagementApi()
 
 	grpcServer := grpc.NewServer()
 	lis, _ := net.Listen("tcp", ":6000")
 
-	pb.RegisterExternalScalerServer(grpcServer, &ExternalScaler{})
+	pb.RegisterExternalScalerServer(grpcServer, &ExternalScaler{ctx: ctx})
 	log.Println("Listening external scaler on :6000")
 
 	if err := grpcServer.Serve(lis); err != nil {
