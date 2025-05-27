@@ -1,6 +1,7 @@
 module github.com/kedacore/test-tools
 
 go 1.24
+
 toolchain go1.24.1
 
 require (
@@ -25,6 +26,6 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	golang.org/x/crypto v0.35.0 // indirect
-	golang.org/x/net v0.36.0 // indirect
+	golang.org/x/crypto v0.36.0 // indirect
+	golang.org/x/net v0.38.0 // indirect
 )
