@@ -1,0 +1,13 @@
+{
+  "name": "in-memory-websocket-server",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "client": "node client.js"
+  },
+  "dependencies": {
+    "rxjs": "^7.8.2",
+    "ws": "^8.0.0"
+  }
+}
