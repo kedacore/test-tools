@@ -6,7 +6,7 @@ IMAGE_REPO     ?= kedacore
 IMAGE_KEDA_TOOLS ?= $(IMAGE_REGISTRY)/$(IMAGE_REPO)/keda-tools:$(KEDA_TOOLS_GO_VERSION)
 IMAGE_KEDA_K6_RUNNER ?= $(IMAGE_REGISTRY)/$(IMAGE_REPO)/keda-k6-runner
 
-BUILD_PLATFORMS ?= linux/amd64,linux/arm64,linux/s390x
+BUILD_PLATFORMS ?= linux/amd64,linux/arm64,linux/s390x,linux/ppc64le
 
 IMAGE_TAG := $(shell git describe --always --abbrev=7)
 
