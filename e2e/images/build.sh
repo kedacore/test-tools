@@ -35,9 +35,10 @@ if [[ "$PUSH" == true ]]; then
         IMAGE_NAME=$(dirname $IMAGE | tr '/' '-')
         if [[ "$PLATFORM" != "" && "${build_as_multiarch[$IMAGE_NAME]:-false}" == true ]]; then
             echo "building and pushing $IMAGE_NAME from $IMAGE for $PLATFORM"
-            docker buildx build --push --platform "$PLATFORM" -t "ghcr.io/kedacore/tests-$IMAGE_NAME" ./$IMAGE
+            image_dir=$(dirname $IMAGE)
+            docker buildx build --push --platform "$PLATFORM" -t "ghcr.io/kedacore/tests-$IMAGE_NAME" ./$image_dir
         else
-            echo "building and pushing $IMAGE_NAME"
+            echo "only pushing $IMAGE_NAME"
             docker image push -a ghcr.io/kedacore/tests-$IMAGE_NAME
         fi
     done
