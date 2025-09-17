@@ -20,7 +20,7 @@ build-e2e-images:
 	IMAGE_TAG=$(IMAGE_TAG) ./e2e/images/build.sh
 
 push-e2e-images:
-	IMAGE_TAG=$(IMAGE_TAG) ./e2e/images/build.sh --push
+	IMAGE_TAG=$(IMAGE_TAG) ./e2e/images/build.sh --push --platform ${BUILD_PLATFORMS}
 
 ##################################################
 # tools image                                    #
