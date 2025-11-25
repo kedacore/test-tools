@@ -32,10 +32,6 @@ cd $DIR
 
 if [[ "$PUSH" == true ]]; then
     for IMAGE in $(find * -name Dockerfile); do
-        echo "Checking disk space before pushing images..."
-        df -h
-        echo "Checking Docker disk usage..."
-        docker system df
         IMAGE_NAME=$(dirname $IMAGE | tr '/' '-')
         if [[ "$PLATFORM" != "" && "${build_as_multiarch[$IMAGE_NAME]:-false}" == true ]]; then
             echo "building and pushing $IMAGE_NAME from $IMAGE for $PLATFORM"
@@ -48,6 +44,10 @@ if [[ "$PUSH" == true ]]; then
     done
 else
     for IMAGE in $(find * -name Dockerfile); do
+        echo "Checking disk space before pushing images..."
+        df -h
+        echo "Checking Docker disk usage..."
+        docker system df
         IMAGE_NAME=$(dirname $IMAGE | tr '/' '-')
         pushd $(dirname $IMAGE)
         docker build --label "org.opencontainers.image.source=https://github.com/kedacore/test-tools" -t ghcr.io/kedacore/tests-$IMAGE_NAME:$IMAGE_TAG -t ghcr.io/kedacore/tests-$IMAGE_NAME:latest .
