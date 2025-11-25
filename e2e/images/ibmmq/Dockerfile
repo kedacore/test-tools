@@ -1,4 +1,4 @@
-FROM golang:1.25as build-env
+FROM golang:1.25 as build-env
 
 # Create MQ installation
 RUN mkdir -p /opt/mqm \
