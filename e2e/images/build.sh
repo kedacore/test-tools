@@ -32,6 +32,10 @@ cd $DIR
 
 if [[ "$PUSH" == true ]]; then
     for IMAGE in $(find * -name Dockerfile); do
+        echo "Checking disk space before pushing images..."
+        df -h
+        echo "Checking Docker disk usage..."
+        docker system df
         IMAGE_NAME=$(dirname $IMAGE | tr '/' '-')
         if [[ "$PLATFORM" != "" && "${build_as_multiarch[$IMAGE_NAME]:-false}" == true ]]; then
             echo "building and pushing $IMAGE_NAME from $IMAGE for $PLATFORM"
