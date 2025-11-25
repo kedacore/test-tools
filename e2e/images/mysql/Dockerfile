@@ -1,12 +1,12 @@
-FROM golang:1.18 as build-env
+# build stage
+FROM --platform=$BUILDPLATFORM golang:1.22-alpine AS builder
+ARG TARGETARCH
+WORKDIR /app
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go build -o /app/main ./cmd/main.go
 
-WORKDIR /go/src/app
-COPY go.mod .
-COPY cmd/ /go/src/app
-
-RUN go mod tidy
-RUN go build -o /go/bin/app
-
+# final stage
 FROM gcr.io/distroless/base
-COPY --from=build-env /go/bin/app /
-CMD ["/app"]
+WORKDIR /app
+COPY --from=builder /app/main /app/main
+ENTRYPOINT ["/app/main"]

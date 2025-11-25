@@ -4,14 +4,23 @@ on:
     branches:
       - main
     paths:
-      - 'e2e/images/**'
-      - 'Makefile'
+      - "e2e/images/**"
+      - "Makefile"
 
 jobs:
   validate:
     name: Build
     runs-on: ubuntu-latest
     steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@v10
+        with:
+          remove-dotnet: "true"
+          remove-android: "true"
+          remove-haskell: "true"
+          remove-codeql: "true"
+          remove-docker-images: "true"
+
       - name: Check out code
         uses: actions/checkout@v1
         with:
@@ -37,5 +46,3 @@ jobs:
 
       - name: e2e-images
         run: make e2e-images
-        env:
-          IMAGE_PURGE_POLICY: push

@@ -5,6 +5,15 @@ jobs:
     name: Validate
     runs-on: ubuntu-latest
     steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@v10
+        with:
+          remove-dotnet: "true"
+          remove-android: "true"
+          remove-haskell: "true"
+          remove-codeql: "true"
+          remove-docker-images: "true"
+
       - name: Check out code
         uses: actions/checkout@v3
         with:
@@ -20,8 +29,6 @@ jobs:
       - name: Build
         if: steps.filter.outputs.e2e-images == 'true'
         run: make build-e2e-images
-        env:
-          IMAGE_PURGE_POLICY: build
 
   validate-keda-tools:
     name: Validate keda-tools - ${{ matrix.name }}
