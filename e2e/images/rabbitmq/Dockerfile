@@ -1,12 +1,25 @@
-FROM golang:1.12.1 as builder
+# build stage
+FROM --platform=$BUILDPLATFORM golang:1.22-alpine AS builder
+ARG TARGETARCH
+WORKDIR /app
 
-# Copy the code from the host and compile it
-WORKDIR $GOPATH/src/github.com/kedacore/sample-go-rabbitmq
+# Copy go.mod and go.sum files to leverage Docker cache
+COPY go.mod go.sum ./
+RUN go mod download
 
+# Copy the rest of the source code
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go install ./...
+# Build the binaries for send and receive
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go build -o /app/send ./cmd/send
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go build -o /app/receive ./cmd/receive
 
-FROM scratch
-COPY --from=builder /go/bin/receive /go/bin/send /usr/local/bin/
-CMD ["receive"]
+# final stage
+FROM alpine:latest
+WORKDIR /app
+COPY --from=builder /app/send /app/send
+COPY --from=builder /app/receive /app/receive
+
+# By default, the image won't do anything.
+# The user will specify which binary to run.
+CMD ["/app/receive"]
