@@ -1,4 +1,4 @@
-FROM golang:1.23 as build-env
+FROM golang:1.25-alpine as build-env
 
 WORKDIR /go/src/app
 COPY go.mod .
