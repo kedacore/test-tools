@@ -5,14 +5,20 @@ jobs:
     name: Validate
     runs-on: ubuntu-latest
     steps:
-      - name: Maximize build space
-        uses: easimon/maximize-build-space@v10
-        with:
-          remove-dotnet: "true"
-          remove-android: "true"
-          remove-haskell: "true"
-          remove-codeql: "true"
-          remove-docker-images: "true"
+      - name: Maximize disk space
+        run: |
+          # inspired by easimon/maximize-build-space action but it can't be easily used because this runs in a container
+          # https://github.com/easimon/maximize-build-space/blob/c28619d8999a147d5e09c1199f84ff6af6ad5794/action.yml#L41-L60
+          # remove android sdk => ~11GB
+          rm -rf /host/usr/local/lib/android
+          # remove .NET => ~17GB
+          rm -rf /host/usr/share/dotnet
+          # remove haskell => ~2.7GB
+          rm -rf /host/opt/ghc
+          # remove CodeQL => ~5.4 GB
+          rm -rf /opt/hostedtoolcache/CodeQL
+          # remove CodeQL => ~3 GB
+          docker image prune --all --force
 
       - name: Check out code
         uses: actions/checkout@v3
