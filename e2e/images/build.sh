@@ -10,6 +10,9 @@ build_as_multiarch=(
     "nsq"
     "redis-cluster-lists"
     "redis-sentinel-lists"
+    "redis-lists"
+    "cloudevents-http"
+    "prometheus"
 )
 
 # Helper function to check if an element is in an array
@@ -56,8 +59,6 @@ if [[ "$PUSH" == true ]]; then
     done
 else
     for IMAGE in $(find * -name Dockerfile); do
-        echo "Checking disk space before pushing images..."
-        df -h
         IMAGE_NAME=$(dirname $IMAGE | tr '/' '-')
         pushd $(dirname $IMAGE)
         docker build --label "org.opencontainers.image.source=https://github.com/kedacore/test-tools" -t ghcr.io/kedacore/tests-$IMAGE_NAME:$IMAGE_TAG -t ghcr.io/kedacore/tests-$IMAGE_NAME:latest .

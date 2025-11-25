@@ -1,17 +1,14 @@
-FROM golang:1.19 as builder
+FROM --platform=$BUILDPLATFORM golang:1.22-alpine AS builder
+ARG TARGETARCH
+WORKDIR /app
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go build -o /app/main .
 
-WORKDIR /workspace
-
-COPY go.mod go.mod
-COPY go.sum go.sum
-COPY main.go main.go
-
-RUN go build -o prometheusapp main.go
-
+# final stage
 FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
 WORKDIR /
-COPY --from=builder /workspace/prometheusapp .
+COPY --from=builder /app/main /app/main
 # 65532 is numeric for nonroot
 USER 65532:65532
 
-ENTRYPOINT ["/prometheusapp"]
+ENTRYPOINT ["/app/main"]
