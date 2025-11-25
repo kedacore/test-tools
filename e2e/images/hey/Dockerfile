@@ -1,4 +1,4 @@
-FROM golang:1.25-alpine as build
+FROM golang:1.25 as build
 
 # Create appuser.
 ENV USER=appuser
