@@ -5,8 +5,6 @@ IMAGE_REGISTRY ?= ghcr.io
 IMAGE_REPO     ?= kedacore
 IMAGE_KEDA_TOOLS ?= $(IMAGE_REGISTRY)/$(IMAGE_REPO)/keda-tools:$(KEDA_TOOLS_GO_VERSION)
 IMAGE_KEDA_K6_RUNNER ?= $(IMAGE_REGISTRY)/$(IMAGE_REPO)/keda-k6-runner
-IMAGE_PURGE_POLICY   ?= none
-
 
 BUILD_PLATFORMS ?= linux/amd64,linux/arm64,linux/s390x
 
