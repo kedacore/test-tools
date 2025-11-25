@@ -5,14 +5,15 @@ set -euo pipefail
 # here is a list of images that must be multiarch for e2e tests to pass
 build_as_multiarch=(
     "apache-ab"
-    "websockets"
+    "cloudevents-http"
     "mysql"
     "nsq"
-    "redis-cluster-lists"
-    "redis-sentinel-lists"
-    "redis-lists"
-    "cloudevents-http"
     "prometheus"
+    "rabbitmq"
+    "redis-cluster-lists"
+    "redis-lists"
+    "redis-sentinel-lists"
+    "websockets"
 )
 
 # Helper function to check if an element is in an array
