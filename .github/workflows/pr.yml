@@ -20,6 +20,8 @@ jobs:
       - name: Build
         if: steps.filter.outputs.e2e-images == 'true'
         run: make build-e2e-images
+        env:
+          IMAGE_PURGE_POLICY=build
 
   validate-keda-tools:
     name: Validate keda-tools - ${{ matrix.name }}

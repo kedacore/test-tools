@@ -5,6 +5,8 @@ IMAGE_REGISTRY ?= ghcr.io
 IMAGE_REPO     ?= kedacore
 IMAGE_KEDA_TOOLS ?= $(IMAGE_REGISTRY)/$(IMAGE_REPO)/keda-tools:$(KEDA_TOOLS_GO_VERSION)
 IMAGE_KEDA_K6_RUNNER ?= $(IMAGE_REGISTRY)/$(IMAGE_REPO)/keda-k6-runner
+IMAGE_PURGE_POLICY   ?= none
+
 
 BUILD_PLATFORMS ?= linux/amd64,linux/arm64,linux/s390x
 
@@ -17,10 +19,10 @@ IMAGE_TAG := $(shell git describe --always --abbrev=7)
 e2e-images: build-e2e-images push-e2e-images
 
 build-e2e-images:
-	IMAGE_TAG=$(IMAGE_TAG) ./e2e/images/build.sh
+	IMAGE_TAG=$(IMAGE_TAG) ./e2e/images/build.sh --purge-policy $(IMAGE_PURGE_POLICY)
 
 push-e2e-images:
-	IMAGE_TAG=$(IMAGE_TAG) ./e2e/images/build.sh --push --platform ${BUILD_PLATFORMS}
+	IMAGE_TAG=$(IMAGE_TAG) ./e2e/images/build.sh --push --platform ${BUILD_PLATFORMS} --purge-policy $(IMAGE_PURGE_POLICY)
 
 ##################################################
 # tools image                                    #

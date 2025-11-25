@@ -37,3 +37,5 @@ jobs:
 
       - name: e2e-images
         run: make e2e-images
+        env:
+          IMAGE_PURGE_POLICY=push

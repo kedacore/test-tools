@@ -14,15 +14,17 @@ if [[ -z "${IMAGE_TAG:-}" ]]; then
     IMAGE_TAG=latest
 fi
 
-options=$(getopt -l "push,platform:" -o "p,x:" -- "$@")
+options=$(getopt -l "push,platform,purge-policy:" -o "p,x,r:" -- "$@")
 eval set -- "$options"
 
 PUSH=false
 PLATFORM=""
+PURGE_POLICY="push"
 while true; do
   case "$1" in
     -p|--push) PUSH=true; shift ;;
     -x|--platform) PLATFORM="$2"; shift 2 ;;
+    -r|--purge-policy) PURGE_POLICY="$2"; shift 2 ;;
     --) shift; break ;;
     *) echo "Invalid option: $1" >&2; exit 1 ;;
   esac
@@ -40,6 +42,9 @@ if [[ "$PUSH" == true ]]; then
         else
             echo "only pushing $IMAGE_NAME"
             docker image push -a ghcr.io/kedacore/tests-$IMAGE_NAME
+            if [[ "$PURGE_POLICY" == "push" ]]; then
+                docker image rm ghcr.io/kedacore/tests-$IMAGE_NAME:$IMAGE_TAG ghcr.io/kedacore/tests-$IMAGE_NAME:latest
+            fi
         fi
     done
 else
@@ -51,6 +56,9 @@ else
         IMAGE_NAME=$(dirname $IMAGE | tr '/' '-')
         pushd $(dirname $IMAGE)
         docker build --label "org.opencontainers.image.source=https://github.com/kedacore/test-tools" -t ghcr.io/kedacore/tests-$IMAGE_NAME:$IMAGE_TAG -t ghcr.io/kedacore/tests-$IMAGE_NAME:latest .
+        if [[ "$PURGE_POLICY" == "build" ]]; then
+            docker image rm ghcr.io/kedacore/tests-$IMAGE_NAME:$IMAGE_TAG ghcr.io/kedacore/tests-$IMAGE_NAME:latest
+        fi
         popd
     done
 fi
