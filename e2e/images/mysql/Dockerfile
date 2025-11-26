@@ -7,6 +7,6 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go build -o /app/main ./cmd/main
 
 # final stage
 FROM gcr.io/distroless/base
-WORKDIR /app
-COPY --from=builder /app/main /app/main
-ENTRYPOINT ["/app/main"]
+WORKDIR /
+COPY --from=builder /app/main /app
+ENTRYPOINT ["/app"]

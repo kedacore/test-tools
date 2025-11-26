@@ -16,10 +16,10 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go build -o /app/receive ./cmd/r
 
 # final stage
 FROM alpine:latest
-WORKDIR /app
-COPY --from=builder /app/send /app/send
-COPY --from=builder /app/receive /app/receive
+WORKDIR /
+COPY --from=builder /app/send /usr/local/bin/
+COPY --from=builder /app/receive /usr/local/bin/
 
 # By default, the image won't do anything.
 # The user will specify which binary to run.
-CMD ["/app/receive"]
+CMD ["receive"]
