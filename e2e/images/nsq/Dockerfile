@@ -1,11 +1,12 @@
-FROM golang:1.22
-WORKDIR /cmd
+# build stage
+FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS builder
+ARG TARGETARCH
+WORKDIR /app
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go build -o /app/main .
 
-COPY go.mod go.sum ./
-RUN go mod download
-
-COPY *.go ./
-
-RUN CGO_ENABLED=0 GOOS=linux go build -o cmd .
-
-ENTRYPOINT ["./cmd"]
+# final stage
+FROM gcr.io/distroless/base
+WORKDIR /app
+COPY --from=builder /app/main /app/main
+ENTRYPOINT ["/app/main"]

@@ -3,10 +3,26 @@ set -euo pipefail
 
 # not all images can be built as multiarch at the moment
 # here is a list of images that must be multiarch for e2e tests to pass
-declare -A build_as_multiarch=(
-    ["apache-ab"]=true
-    ["websockets"]=true
+build_as_multiarch=(
+    "apache-ab"
+    "cloudevents-http"
+    "mysql"
+    "nsq"
+    "prometheus"
+    "rabbitmq"
+    "redis-cluster-lists"
+    "redis-lists"
+    "redis-sentinel-lists"
+    "websockets"
 )
+
+# Helper function to check if an element is in an array
+contains_element () {
+  local e match="$1"
+  shift
+  for e; do [[ "$e" == "$match" ]] && return 0; done
+  return 1
+}
 
 DIR=$(dirname "$0")
 
@@ -33,7 +49,7 @@ cd $DIR
 if [[ "$PUSH" == true ]]; then
     for IMAGE in $(find * -name Dockerfile); do
         IMAGE_NAME=$(dirname $IMAGE | tr '/' '-')
-        if [[ "$PLATFORM" != "" && "${build_as_multiarch[$IMAGE_NAME]:-false}" == true ]]; then
+        if [[ "$PLATFORM" != "" ]] && contains_element "$IMAGE_NAME" "${build_as_multiarch[@]}"; then
             echo "building and pushing $IMAGE_NAME from $IMAGE for $PLATFORM"
             image_dir=$(dirname $IMAGE)
             docker buildx build --push --platform "$PLATFORM" -t "ghcr.io/kedacore/tests-$IMAGE_NAME" ./$image_dir

@@ -1,4 +1,4 @@
-FROM golang:1.18 as build-env
+FROM golang:1.25-alpine as build-env
 
 WORKDIR /go/src/app
 ADD cmd/ /go/src/app

@@ -1,15 +1,13 @@
-FROM golang:1.19 as build-env
-
-
+# build stage
+FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS builder
+ARG TARGETARCH
 WORKDIR /app
-COPY go.mod .
-COPY server.go server.go
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go build -o /app/main .
 
-RUN go mod tidy
-RUN go build -o /go/bin/server .
-
+# final stage
 FROM gcr.io/distroless/base
-COPY --from=build-env /go/bin/server /
+WORKDIR /app
+COPY --from=builder /app/main /app/main
 EXPOSE 8899
-
-ENTRYPOINT ["/server"]
+ENTRYPOINT ["/app/main"]
