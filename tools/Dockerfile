@@ -22,13 +22,32 @@ RUN apt-get install -y apt-transport-https ca-certificates curl gnupg-agent soft
 
 # Install golang
 ARG GO_VERSION
-RUN curl -LO https://golang.org/dl/go${GO_VERSION}.linux-$(dpkg --print-architecture).tar.gz && \
+RUN ARCH=$(dpkg --print-architecture) && \
+case "$ARCH" in \
+   "ppc64le" | "ppc64el") \
+    curl -LO https://golang.org/dl/go${GO_VERSION}.linux-ppc64le.tar.gz && \
+    tar -C /usr/local -xvzf go${GO_VERSION}.linux-ppc64le.tar.gz && \
+    rm -rf go${GO_VERSION}.linux-ppc64le.tar.gz \
+   ;; \
+   *) \
+    curl -LO https://golang.org/dl/go${GO_VERSION}.linux-$(dpkg --print-architecture).tar.gz && \
     tar -C /usr/local -xvzf go${GO_VERSION}.linux-$(dpkg --print-architecture).tar.gz && \
-    rm -rf go${GO_VERSION}.linux-$(dpkg --print-architecture).tar.gz
+    rm -rf go${GO_VERSION}.linux-$(dpkg --print-architecture).tar.gz \
+    ;; \
+esac
 
 # Install kubectl
-RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/$(dpkg --print-architecture)/kubectl" && \
-    curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/$(dpkg --print-architecture)/kubectl.sha256" && \
+RUN ARCH=$(dpkg --print-architecture) && \
+case "$ARCH" in \
+    "ppc64le" | "ppc64el") \
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/ppc64le/kubectl" && \
+    curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/ppc64le/kubectl.sha256" \
+    ;; \
+    *) \
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/$(dpkg --print-architecture)/kubectl" && \
+    curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/$(dpkg --print-architecture)/kubectl.sha256" \
+    ;; \
+esac && \
     echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check && \
     chmod +x ./kubectl && mv ./kubectl /usr/bin/kubectl && \
     rm kubectl.sha256
@@ -63,7 +82,7 @@ RUN ARCH=$(dpkg --print-architecture) && \
             apt update && \
             apt install -y gh \
         ;; \
-        "s390x") \
+        "s390x" | "ppc64el" | "ppc64le") \
             echo "deb http://ports.ubuntu.com/ubuntu-ports jammy universe" | tee /etc/apt/sources.list.d/gh.list > /dev/null && \
             apt update && apt install -y gh \
         ;; \
@@ -79,6 +98,7 @@ RUN PROTOC_VERSION=21.9 \
         "amd64") PROTOC_ARCH="x86_64" ;; \
         "arm64") PROTOC_ARCH="aarch_64" ;; \
         "s390x") PROTOC_ARCH="s390_64" ;; \
+        "ppc64el" | "ppc64le") PROTOC_ARCH="ppcle_64" ;; \
         *) echo "Unsupported architecture"; exit 1 ;; \
     esac \
     && curl -LO "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-${PROTOC_ARCH}.zip" \
