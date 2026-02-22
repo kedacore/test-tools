@@ -6,7 +6,7 @@ RUN mkdir -p /opt/mqm \
 # Location of the downloadable MQ client package \
 ENV RDURL="https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/messaging/mqdev/redist" \
     RDTAR="IBM-MQC-Redist-LinuxX64.tar.gz" \
-    VRMF=9.2.0.0
+    VRMF=9.4.5.0
 # Install the MQ client from the Redistributable package. This also contains the
 # header files we need to compile against. Setup the subset of the package
 # we are going to keep - the genmqpkg.sh script removes unneeded parts
