@@ -45,6 +45,8 @@ jobs:
             name: amd64
           - runner: s390x
             name: s390x
+          - runner: ppc64le
+            name: ppc64le
     steps:
       - uses: actions/checkout@v3
 
