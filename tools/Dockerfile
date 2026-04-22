@@ -2,7 +2,7 @@ FROM ubuntu:22.04
 
 # Install prerequisite
 RUN apt update && \
-    apt-get install software-properties-common wget curl build-essential git git-lfs unzip jq apt-get install gettext-base -y
+    apt-get install software-properties-common wget curl build-essential git git-lfs unzip jq gettext-base -y
 
 # Use Bash instead of Dash
 RUN ln -sf bash /bin/sh
