@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package externalscaler;
-option go_package = "github.com/kedacore/test-tools/external-scaler-e2e/externalscaler";
+option go_package = ".;externalscaler";
 
 service ExternalScaler {
     rpc IsActive(ScaledObjectRef) returns (IsActiveResponse) {}
@@ -30,6 +30,7 @@ message MetricSpec {
     // deprecated, use targetSizeFloat instead
     int64 targetSize = 2;
     double targetSizeFloat = 3;
+    optional string metricType = 4;
 }
 
 message GetMetricsRequest {
