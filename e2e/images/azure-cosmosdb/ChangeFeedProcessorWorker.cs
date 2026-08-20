@@ -24,7 +24,11 @@ namespace CosmosDbTestTool
 
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
-            var clientOptions = new CosmosClientOptions { ConnectionMode = ConnectionMode.Gateway };
+            var clientOptions = new CosmosClientOptions
+            {
+                ConnectionMode = ConnectionMode.Gateway,
+                ConsistencyLevel = ConsistencyLevel.Eventual,
+            };
             _client = new CosmosClient(_options.Connection, clientOptions);
             _leaseClient = _options.LeaseConnection == _options.Connection
                 ? _client
@@ -42,6 +46,15 @@ namespace CosmosDbTestTool
                 .GetChangeFeedProcessorBuilder<dynamic>(_options.ProcessorName, HandleChangesAsync)
                 .WithInstanceName(Environment.MachineName)
                 .WithLeaseContainer(leaseContainer)
+                // WithStartFromBeginning() is internal to the SDK; WithStartTime with a date well
+                // before Cosmos DB existed is the public equivalent. Without this, a brand-new
+                // lease defaults to reading only from the moment this processor starts, silently
+                // skipping any documents that already existed in the container - which would
+                // never let the KEDA scaler's estimated lag (computed the same way as the SDK's
+                // own GetChangeFeedEstimator, which also assumes a full backlog scan for a
+                // never-checkpointed lease) actually be drained. Only applies while a lease has no
+                // continuation token yet, so it's a no-op once real processing has begun.
+                .WithStartTime(new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc))
                 .WithErrorNotification(HandleErrorAsync)
                 .Build();
 
