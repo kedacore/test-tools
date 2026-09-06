@@ -1,11 +1,9 @@
 # Pipeline to use during our end-to-end tests for our Azure Pipelines scaler
 
 trigger:
-- none
+- main
 
-pool:
-  name: demand-end-to-end-tests
-  demands: golang
+pool: regular-end-to-end-tests-aad-sp
 
 steps:
 - script: echo "Hello world"
