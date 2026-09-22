@@ -4,9 +4,9 @@ WORKDIR /workspace
 
 COPY go.mod go.mod
 COPY go.sum go.sum
-COPY main.go main.go
+COPY main.go main_test.go ./
 
-RUN go build -o boundserviceaccounttoken main.go
+RUN go test ./... && go build -o boundserviceaccounttoken main.go
 
 FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
 WORKDIR /
