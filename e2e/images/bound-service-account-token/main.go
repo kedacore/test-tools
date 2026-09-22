@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -51,10 +53,17 @@ func authenticate(clientset *kubernetes.Clientset, next http.Handler) http.Handl
 				Token: tokenString,
 			},
 		}
+		if audience := os.Getenv("TOKEN_AUDIENCE"); audience != "" {
+			tokenReview.Spec.Audiences = []string{audience}
+		}
 
 		// make sure there's rbac to allow this
 		response, err := clientset.AuthenticationV1().TokenReviews().Create(context.TODO(), tokenReview, metav1.CreateOptions{})
 		if err != nil || !response.Status.Authenticated {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		if len(tokenReview.Spec.Audiences) != 0 && !slices.Contains(response.Status.Audiences, tokenReview.Spec.Audiences[0]) {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
